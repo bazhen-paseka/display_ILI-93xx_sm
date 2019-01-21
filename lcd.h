@@ -1,4 +1,4 @@
-**
+/**
 *	TechMaker
 *	https://techmaker.ua
 *
@@ -62,7 +62,7 @@ POSSIBILITY OF SUCH DAMAGE.
 // Please uncomment one of the lines to select your LCD chip
 //#define ILI9325			// works!!
 //#define ILI9328			// works!!
-//#define ILI9340			// works!!
+#define ILI9340			// works!!
 //#define ILI9341			// works!!
 //#define ILI9341_00		// works!!
 //#define R61505			// works!!
