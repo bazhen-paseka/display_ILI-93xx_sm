@@ -57,35 +57,16 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include "registers.h"
 #include "Fonts/fonts.h"
-#include "stm32f4xx_hal.h"
+#include "lcd_config_local.h"	// look example at the end of the this file
 
-// Please uncomment one of the lines to select your LCD chip
-//#define ILI9325			// works!!
-//#define ILI9328			// works!!
-#define ILI9340			// works!!
-//#define ILI9341			// works!!
-//#define ILI9341_00		// works!!
-//#define R61505			// works!!
-//#define R61505V			// works!! (ATTN! Used to be named R61505 in versions below V1.4)
-//#define R61520			// works!! // this is a splitfix screen
-//#define S6D0154			// works!!
-//#define UNKNOWN1602		// works!!
-//#define HX8347D			// works!!
-//#define HX8347G			// not tested yet
-//#define HX8357D			// not tested yet
-//#define SSD1297				// works!!
+#ifdef STM32F4xx
+	#include "stm32f4xx_hal.h"
+#endif
 
-// Please uncomment one of the lines to select your LCD connection mode
-#define USE_8080_8BIT
-//#define USE_FSMC
+#ifdef STM32F1xx
+	#include "stm32f1xx_hal.h"
+#endif
 
-// Please uncomment to draw BMP from SD Card
-//#define USE_FATFS
-
-// Please uncomment to clear screen when wrapping
-//#define WIPE_SCREEN
-// Please uncomment to clear line when wrapping
-//#define WIPE_LINES
 
 #if !(defined(ILI9325) || defined(ILI9328) \
 		|| defined(ILI9340) || defined(ILI9341) || defined(ILI9341_00) \
@@ -122,8 +103,8 @@ POSSIBILITY OF SUCH DAMAGE.
 // GPIO to control bus pin connections
 // ---- PORT Pin ---     --- Signal ----
 // GPIOB, GPIO_PIN_0  -> CS
-// GPIOA, GPIO_PIN_4  -> CD
-// GPIOC, GPIO_PIN_1  -> RST
+// GPIOA, GPIO_PIN_4  -> CD or RS
+// 					  -> RST
 // GPIOA, GPIO_PIN_0  -> RD
 // GPIOA, GPIO_PIN_1  -> WR
 
@@ -137,10 +118,19 @@ POSSIBILITY OF SUCH DAMAGE.
 #define LCD_CD_DATA()		LCD_CD_GPIO_PORT->BSRR = LCD_CD_PIN						// CD_HIGH
 #define LCD_CD_COMMAND()	LCD_CD_GPIO_PORT->BSRR = (uint32_t)LCD_CD_PIN << 16U	// CD_LOW
 
-#define LCD_RST_GPIO_PORT	GPIOC
-#define LCD_RST_PIN			GPIO_PIN_1
-#define LCD_RST_IDLE()		LCD_RST_GPIO_PORT->BSRR = LCD_RST_PIN					// RST_HIGH
-#define LCD_RST_ACTIVE()	LCD_RST_GPIO_PORT->BSRR = (uint32_t)LCD_RST_PIN << 16U	// RST_LOW
+#ifdef NEW_RST
+	// GPIOB, GPIO_PIN_1  -> RST
+	#define LCD_RST_GPIO_PORT	GPIOB
+	#define LCD_RST_PIN			GPIO_PIN_1
+	#define LCD_RST_IDLE()		LCD_RST_GPIO_PORT->BSRR = LCD_RST_PIN					// RST_HIGH
+	#define LCD_RST_ACTIVE()	LCD_RST_GPIO_PORT->BSRR = (uint32_t)LCD_RST_PIN << 16U	// RST_LOW
+#else
+	// GPIOC, GPIO_PIN_1  -> RST
+	#define LCD_RST_GPIO_PORT	GPIOC
+	#define LCD_RST_PIN			GPIO_PIN_1
+	#define LCD_RST_IDLE()		LCD_RST_GPIO_PORT->BSRR = LCD_RST_PIN					// RST_HIGH
+	#define LCD_RST_ACTIVE()	LCD_RST_GPIO_PORT->BSRR = (uint32_t)LCD_RST_PIN << 16U	// RST_LOW
+#endif
 
 #define LCD_RD_GPIO_PORT	GPIOA
 #define LCD_RD_PIN			GPIO_PIN_0
@@ -225,3 +215,51 @@ int16_t LCD_GetCursorY(void);
 
 uint16_t LCD_Color565(uint8_t r, uint8_t g, uint8_t b);
 #endif /* __LCD_H */
+
+
+
+#if 0
+	// example file "lcd_config_local.h"
+
+	#ifndef __LCD_CONFIG_LOCAL_H
+	#define __LCD_CONFIG_LOCAL_H
+
+	// Please uncomment one of the lines to select your STM chip
+	#define STM32F4xx
+	//#define STM32F1xx
+
+	#define NEW_RST
+	#define NEW_BIT1
+
+		// Please uncomment one of the lines to select your LCD chip
+	//#define ILI9325			// works!!
+	//#define ILI9328			// works!!
+	#define ILI9340			// works!!
+	//#define ILI9341			// works!!
+	//#define ILI9341_00		// works!!
+	//#define R61505			// works!!
+	//#define R61505V			// works!! (ATTN! Used to be named R61505 in versions below V1.4)
+	//#define R61520			// works!! // this is a splitfix screen
+	//#define S6D0154			// works!!
+	//#define UNKNOWN1602		// works!!
+	//#define HX8347D			// works!!
+	//#define HX8347G			// not tested yet
+	//#define HX8357D			// not tested yet
+	//#define SSD1297				// works!!
+
+
+	// Please uncomment one of the lines to select your LCD connection mode
+	#define USE_8080_8BIT
+	//#define USE_FSMC
+
+	// Please uncomment to draw BMP from SD Card
+	//#define USE_FATFS
+
+	// Please uncomment to clear screen when wrapping
+	//#define WIPE_SCREEN
+	// Please uncomment to clear line when wrapping
+	//#define WIPE_LINES
+
+	#endif	//	__LCD_CONFIG_LOCAL_H
+
+#endif
