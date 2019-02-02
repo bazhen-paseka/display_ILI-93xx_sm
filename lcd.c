@@ -692,7 +692,7 @@ void GPIO_Init(uint32_t mode) {
 	// GPIO to control bus pin connections
 	// ---- PORT Pin ---     --- Signal ----
 	// GPIOB, GPIO_PIN_0  -> CS
-	// GPIOA, GPIO_PIN_4  -> CD
+	// GPIOA, GPIO_PIN_4  -> CD or RS
 	// GPIOC, GPIO_PIN_1  -> RST
 	// GPIOA, GPIO_PIN_0  -> RD
 	// GPIOA, GPIO_PIN_1  -> WR
@@ -720,12 +720,21 @@ void GPIO_Init(uint32_t mode) {
 	GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
 	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+#ifdef NEW_BIT1
+	/*Configure GPIO data pins : PA7 */
+	GPIO_InitStruct.Pin = GPIO_PIN_7;
+	GPIO_InitStruct.Mode = mode;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+#else
 	/*Configure GPIO data pins : PC7 */
 	GPIO_InitStruct.Pin = GPIO_PIN_7;
 	GPIO_InitStruct.Mode = mode;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
 	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+#endif
 
 	/*Configure GPIO control pins : PA0 PA1 PA4 */
 	GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_4;
@@ -741,12 +750,21 @@ void GPIO_Init(uint32_t mode) {
 	GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
 	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
+#ifdef NEW_RST
+	/*Configure GPIO control pins : PB1 */
+	GPIO_InitStruct.Pin = GPIO_PIN_1;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+#else
 	/*Configure GPIO control pins : PC1 */
 	GPIO_InitStruct.Pin = GPIO_PIN_1;
 	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
 	GPIO_InitStruct.Pull = GPIO_NOPULL;
 	GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
 	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+#endif
 }
 
 /**
@@ -759,7 +777,7 @@ void GPIO_Init(uint32_t mode) {
 inline void LCD_Write8(uint8_t data) {
 	// ------ PORT -----     --- Data ----
 	// GPIOA, GPIO_PIN_9  -> BIT 0 -> 0x01
-	// GPIOC, GPIO_PIN_7  -> BIT 1 -> 0x02
+
 	// GPIOA, GPIO_PIN_10 -> BIT 2 -> 0x04
 	// GPIOB, GPIO_PIN_3  -> BIT 3 -> 0x08
 	// GPIOB, GPIO_PIN_5  -> BIT 4 -> 0x10
@@ -767,9 +785,16 @@ inline void LCD_Write8(uint8_t data) {
 	// GPIOB, GPIO_PIN_10 -> BIT 6 -> 0x40
 	// GPIOA, GPIO_PIN_8  -> BIT 7 -> 0x80
 
+#ifdef NEW_BIT1
+	// GPIOA, GPIO_PIN_7  -> BIT 1 -> 0x02
+	GPIOA->ODR = (GPIOA->ODR & 0xF87F) | ((data & 0x01) << 9) | ((data & 0x04) << 8) | ((data & 0x80) << 1) | ((data & 0x02) << 6);
+	GPIOB->ODR = (GPIOB->ODR & 0xFBC7) | (data & 0x08) | ((data & 0x10) << 1) | ((data & 0x20) >> 1) | ((data & 0x40) << 4);
+#else
+	// GPIOC, GPIO_PIN_7  -> BIT 1 -> 0x02
 	GPIOA->ODR = (GPIOA->ODR & 0xF8FF) | ((data & 0x01) << 9) | ((data & 0x04) << 8) | ((data & 0x80) << 1);
 	GPIOB->ODR = (GPIOB->ODR & 0xFBC7) | (data & 0x08) | ((data & 0x10) << 1) | ((data & 0x20) >> 1) | ((data & 0x40) << 4);
 	GPIOC->ODR = (GPIOC->ODR & 0xFF7F) | ((data & 0x02) << 6);
+#endif
 
 	LCD_WR_STROBE();
 }
@@ -784,7 +809,7 @@ inline void LCD_Write8(uint8_t data) {
 inline uint8_t LCD_Read8(void) {
 	// - Data - ----------- PORT -----------
 	// BIT 0 -> GPIOA, GPIO_PIN_9  -> 0x0200
-	// BIT 1 -> GPIOC, GPIO_PIN_7  -> 0x0080
+
 	// BIT 2 -> GPIOA, GPIO_PIN_10 -> 0x0400
 	// BIT 3 -> GPIOB, GPIO_PIN_3  -> 0x0008
 	// BIT 4 -> GPIOB, GPIO_PIN_5  -> 0x0020
@@ -793,9 +818,19 @@ inline uint8_t LCD_Read8(void) {
 	// BIT 7 -> GPIOA, GPIO_PIN_8  -> 0x0100
 	uint8_t data;
 	LCD_RD_STROBE();
+
+#ifdef NEW_BIT1
+	// BIT 1 -> GPIOA, GPIO_PIN_7  -> 0x0080
+	data = ((GPIOA->IDR & 0x0200) >> 9) | ((GPIOA->IDR & 0x0400) >> 8) | ((GPIOA->IDR & 0x0100) >> 1) | (GPIOB->IDR & 0x0008)
+			| ((GPIOB->IDR & 0x0020) >> 1) | ((GPIOB->IDR & 0x0010) << 1) | ((GPIOB->IDR & 0x0400) >> 4)
+			| ((GPIOA->IDR & 0x0080) >> 6);
+#else
+	// BIT 1 -> GPIOC, GPIO_PIN_7  -> 0x0080
 	data = ((GPIOA->IDR & 0x0200) >> 9) | ((GPIOA->IDR & 0x0400) >> 8) | ((GPIOA->IDR & 0x0100) >> 1) | (GPIOB->IDR & 0x0008)
 			| ((GPIOB->IDR & 0x0020) >> 1) | ((GPIOB->IDR & 0x0010) << 1) | ((GPIOB->IDR & 0x0400) >> 4)
 			| ((GPIOC->IDR & 0x0080) >> 6);
+#endif
+
 	return data;
 }
 
