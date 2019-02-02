@@ -57,7 +57,7 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include "registers.h"
 #include "Fonts/fonts.h"
-#include "lcd_config_local.h"	// look example at the end of the this file
+#include "../lcd_config_local.h"	// look example at the end of the this file
 
 #ifdef STM32F4xx
 	#include "stm32f4xx_hal.h"
