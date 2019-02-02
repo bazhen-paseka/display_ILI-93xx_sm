@@ -701,70 +701,140 @@ void GPIO_Init(uint32_t mode) {
 
 	GPIO_InitTypeDef GPIO_InitStruct;
 
-	/* GPIO Ports Clock Enable */
-	__GPIOA_CLK_ENABLE();
-	__GPIOB_CLK_ENABLE();
-	__GPIOC_CLK_ENABLE();
+	#ifdef STM32F4xx
+		/* GPIO Ports Clock Enable */
+		__GPIOA_CLK_ENABLE();
+		__GPIOB_CLK_ENABLE();
+		__GPIOC_CLK_ENABLE();
 
-	/*Configure GPIO data pins : PA8 PA9 PA10 */
-	GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10;
-	GPIO_InitStruct.Mode = mode;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
-	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+		/*Configure GPIO data pins : PA8 PA9 PA10 */
+		GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10;
+		GPIO_InitStruct.Mode = mode;
+		GPIO_InitStruct.Pull = GPIO_NOPULL;
+		GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+		HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-	/*Configure GPIO data pins : PB3 PB4 PB5 PB10 */
-	GPIO_InitStruct.Pin = GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_10;
-	GPIO_InitStruct.Mode = mode;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
-	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+		/*Configure GPIO data pins : PB3 PB4 PB5 PB10 */
+		GPIO_InitStruct.Pin = GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_10;
+		GPIO_InitStruct.Mode = mode;
+		GPIO_InitStruct.Pull = GPIO_NOPULL;
+		GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+		HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-#ifdef NEW_BIT1
-	/*Configure GPIO data pins : PA7 */
-	GPIO_InitStruct.Pin = GPIO_PIN_7;
-	GPIO_InitStruct.Mode = mode;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
-	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-#else
-	/*Configure GPIO data pins : PC7 */
-	GPIO_InitStruct.Pin = GPIO_PIN_7;
-	GPIO_InitStruct.Mode = mode;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
-	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-#endif
+		#ifdef NEW_BIT1
+			/*Configure GPIO data pins : PA7 */
+			GPIO_InitStruct.Pin = GPIO_PIN_7;
+			GPIO_InitStruct.Mode = mode;
+			GPIO_InitStruct.Pull = GPIO_NOPULL;
+			GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+			HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+		#else
+			/*Configure GPIO data pins : PC7 */
+			GPIO_InitStruct.Pin = GPIO_PIN_7;
+			GPIO_InitStruct.Mode = mode;
+			GPIO_InitStruct.Pull = GPIO_NOPULL;
+			GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+			HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+		#endif
 
-	/*Configure GPIO control pins : PA0 PA1 PA4 */
-	GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_4;
-	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
-	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+		/*Configure GPIO control pins : PA0 PA1 PA4 */
+		GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_4;
+		GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+		GPIO_InitStruct.Pull = GPIO_NOPULL;
+		GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+		HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-	/*Configure GPIO control pins : PB0 */
-	GPIO_InitStruct.Pin = GPIO_PIN_0;
-	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
-	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+		/*Configure GPIO control pins : PB0 */
+		GPIO_InitStruct.Pin = GPIO_PIN_0;
+		GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+		GPIO_InitStruct.Pull = GPIO_NOPULL;
+		GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+		HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-#ifdef NEW_RST
-	/*Configure GPIO control pins : PB1 */
-	GPIO_InitStruct.Pin = GPIO_PIN_1;
-	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
-	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-#else
-	/*Configure GPIO control pins : PC1 */
-	GPIO_InitStruct.Pin = GPIO_PIN_1;
-	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-	GPIO_InitStruct.Pull = GPIO_NOPULL;
-	GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
-	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-#endif
+		#ifdef NEW_RST
+			/*Configure GPIO control pins : PB1 */
+			GPIO_InitStruct.Pin = GPIO_PIN_1;
+			GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+			GPIO_InitStruct.Pull = GPIO_NOPULL;
+			GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+			HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+		#else
+			/*Configure GPIO control pins : PC1 */
+			GPIO_InitStruct.Pin = GPIO_PIN_1;
+			GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+			GPIO_InitStruct.Pull = GPIO_NOPULL;
+			GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+			HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+		#endif
+	#endif
+
+#ifdef STM32F1xx
+		/* GPIO Ports Clock Enable */
+		__HAL_RCC_GPIOA_CLK_ENABLE();
+		__HAL_RCC_GPIOB_CLK_ENABLE();
+		__HAL_RCC_GPIOC_CLK_ENABLE();
+
+		/*Configure GPIO data pins : PA8 PA9 PA10 */
+		GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10;
+		GPIO_InitStruct.Mode = mode;
+		GPIO_InitStruct.Pull = GPIO_NOPULL;
+		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+		HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+		/*Configure GPIO data pins : PB3 PB4 PB5 PB10 */
+		GPIO_InitStruct.Pin = GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_10;
+		GPIO_InitStruct.Mode = mode;
+		GPIO_InitStruct.Pull = GPIO_NOPULL;
+		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+		HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+		#ifdef NEW_BIT1
+			/*Configure GPIO data pins : PA7 */
+			GPIO_InitStruct.Pin = GPIO_PIN_7;
+			GPIO_InitStruct.Mode = mode;
+			GPIO_InitStruct.Pull = GPIO_NOPULL;
+			GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+			HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+		#else
+			/*Configure GPIO data pins : PC7 */
+			GPIO_InitStruct.Pin = GPIO_PIN_7;
+			GPIO_InitStruct.Mode = mode;
+			GPIO_InitStruct.Pull = GPIO_NOPULL;
+			GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+			HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+		#endif
+
+		/*Configure GPIO control pins : PA0 PA1 PA4 */
+		GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_4;
+		GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+		GPIO_InitStruct.Pull = GPIO_NOPULL;
+		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+		HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+		/*Configure GPIO control pins : PB0 */
+		GPIO_InitStruct.Pin = GPIO_PIN_0;
+		GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+		GPIO_InitStruct.Pull = GPIO_NOPULL;
+		GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+		HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+		#ifdef NEW_RST
+			/*Configure GPIO control pins : PB1 */
+			GPIO_InitStruct.Pin = GPIO_PIN_1;
+			GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+			GPIO_InitStruct.Pull = GPIO_NOPULL;
+			GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+			HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+		#else
+			/*Configure GPIO control pins : PC1 */
+			GPIO_InitStruct.Pin = GPIO_PIN_1;
+			GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+			GPIO_InitStruct.Pull = GPIO_NOPULL;
+			GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+			HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+		#endif
+
+	#endif
 }
 
 /**

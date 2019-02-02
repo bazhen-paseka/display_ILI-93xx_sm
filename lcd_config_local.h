@@ -2,8 +2,8 @@
 #define __LCD_CONFIG_LOCAL_H
 
 // Please uncomment one of the lines to select your STM chip
-#define STM32F4xx
-//#define STM32F1xx
+//#define STM32F4xx
+#define STM32F1xx
 
 #define NEW_RST
 #define NEW_BIT1
