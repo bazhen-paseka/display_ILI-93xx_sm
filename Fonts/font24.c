@@ -1,9 +1,9 @@
 #include "fonts.h"
-#ifdef USE_FONT20
+#ifdef USE_FONT24
 /**
 *  Font data for Courier New Bold 16pt
 */
-const uint8_t Font20_Table[] = 
+const uint8_t Font24_Table[] =
 {
 	// @0 ' ' (14 pixels wide)
 	0x00, 0x00, //               
@@ -4937,10 +4937,10 @@ const uint8_t Font20_Table[] =
 };
 
 
-font_t Font20 = {
-  Font20_Table,
-  14, /* Width */
-  20, /* Height */
+font_t Font24 = {
+  Font24_Table,
+  17, /* Width */
+  24, /* Height */
 };
 #endif
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
