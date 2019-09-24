@@ -162,15 +162,15 @@ POSSIBILITY OF SUCH DAMAGE.
 								b = t;\
 							} while(0)
 
-#define	BLACK				0x0000
-#define	BLUE				0x001F
-#define	RED					0xF800
-#define	GREEN				0x07E0
-#define CYAN				0x07FF
-#define MAGENTA				0xF81F
-#define YELLOW				0xFFE0
-#define WHITE				0xFFFF
-#define LIGHTGRAY			0xCDB6
+#define	ILI92_BLACK				0x0000
+#define	ILI92_BLUE				0x001F
+#define	ILI92_RED				0xF800
+#define	ILI92_GREEN				0x07E0
+#define ILI92_CYAN				0x07FF
+#define ILI92_MAGENTA			0xF81F
+#define ILI92_YELLOW			0xFFE0
+#define ILI92_WHITE				0xFFFF
+#define ILI92_LIGHTGRAY			0xCDB6
 
 void LCD_Init(void);
 void LCD_DrawPixel(int16_t x, int16_t y, uint16_t color);
