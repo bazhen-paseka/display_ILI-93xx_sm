@@ -1267,9 +1267,9 @@ void LCD_Init(void) {
 #endif
 
 	LCD_CS_IDLE();
-	LCD_FillScreen(BLACK);
+	LCD_FillScreen(ILI92_BLACK);
 	LCD_SetTextSize(0);
-	LCD_SetTextColor(WHITE, BLACK);
+	LCD_SetTextColor(ILI92_WHITE, ILI92_BLACK);
 }
 
 /**
