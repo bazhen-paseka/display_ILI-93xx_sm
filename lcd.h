@@ -57,7 +57,8 @@ POSSIBILITY OF SUCH DAMAGE.
 #include <stdio.h>
 #include "registers.h"
 #include "Fonts/fonts.h"
-#include "../lcd_config_local.h"	// look example at the end of the this file
+//#include "../lcd_config_local.h"	// look example at the end of the this file
+#include "lcd_config_local.h"	// look example at the end of the this file
 
 #ifdef STM32F4xx
 	#include "stm32f4xx_hal.h"
@@ -92,7 +93,7 @@ POSSIBILITY OF SUCH DAMAGE.
 // GPIO to data bus pin connections
 // ---- PORT Pin ---     --- Data ----
 // GPIOA, GPIO_PIN_9  -> BIT 0
-// GPIOC, GPIO_PIN_7  -> BIT 1
+// GPIOC, GPIO_PIN_7  -> BIT 1	//	BAZHEN -> MOVE TO PA7
 // GPIOA, GPIO_PIN_10 -> BIT 2
 // GPIOB, GPIO_PIN_3  -> BIT 3
 // GPIOB, GPIO_PIN_5  -> BIT 4
@@ -104,7 +105,7 @@ POSSIBILITY OF SUCH DAMAGE.
 // ---- PORT Pin ---     --- Signal ----
 // GPIOB, GPIO_PIN_0  -> CS
 // GPIOA, GPIO_PIN_4  -> CD or RS
-// 					  -> RST
+// 					  -> RST	// BAZHEN -> MOVE TO PB1
 // GPIOA, GPIO_PIN_0  -> RD
 // GPIOA, GPIO_PIN_1  -> WR
 
