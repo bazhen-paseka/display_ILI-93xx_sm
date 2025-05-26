@@ -2,7 +2,7 @@
 #define __FONTS_H
 
 #include <stdint.h>
-#include "lcd_config_local.h"
+#include "local_config.h"
 
 typedef struct
 {    
