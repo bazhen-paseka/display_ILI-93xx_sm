@@ -698,8 +698,60 @@ void GPIO_Init(uint32_t mode) {
 	// GPIOA, GPIO_PIN_1  -> WR
 
 	if (!(mode == GPIO_MODE_OUTPUT_PP || mode == GPIO_MODE_INPUT)) return;
+#define OV7670_INIT
+#ifdef OV7670_INIT
+	GPIO_InitTypeDef GPIO_InitStruct;
 
-#ifndef OV7670
+	/* GPIO Ports Clock Enable */
+	__GPIOA_CLK_ENABLE();
+	__GPIOB_CLK_ENABLE();
+	__GPIOC_CLK_ENABLE();
+
+	/*Configure GPIO data pins : PA2 PA9 PA10 PA12 */
+	GPIO_InitStruct.Pin = GPIO_PIN_2 | GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_12;
+	GPIO_InitStruct.Mode = mode;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+	/*Configure GPIO data pins : PB3 PB4 PB12 */
+	GPIO_InitStruct.Pin = GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_12;
+	GPIO_InitStruct.Mode = mode;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+	/*Configure GPIO data pins : PC5 */
+	GPIO_InitStruct.Pin = GPIO_PIN_5;
+	GPIO_InitStruct.Mode = mode;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+
+	/*Configure GPIO control pins : PA0 PA1 */
+	GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+	HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+	/*Configure GPIO control pins : PB0 */
+	GPIO_InitStruct.Pin = GPIO_PIN_0;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+	HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+	/*Configure GPIO control pins : PC0 PC1 */
+	GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+	HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+#endif
+
+#ifndef OV7670_INIT
 	GPIO_InitTypeDef GPIO_InitStruct;
 
 	#ifdef STM32F4xx
@@ -846,59 +898,61 @@ void GPIO_Init(uint32_t mode) {
  * \return void
  */
 inline void LCD_Write8(uint8_t data) {
+#define OV7670_WRITE
+#ifdef OV7670_WRITE
 	// ------ PORT -----     --- Data ----
+	// GPIOA, GPIO_PIN_2  -> BIT 4 -> 0x10
 	// GPIOA, GPIO_PIN_9  -> BIT 0 -> 0x01
-
 	// GPIOA, GPIO_PIN_10 -> BIT 2 -> 0x04
+	// GPIOA, GPIO_PIN_12 -> BIT 6 -> 0x40
+
 	// GPIOB, GPIO_PIN_3  -> BIT 3 -> 0x08
-	// GPIOB, GPIO_PIN_5  -> BIT 4 -> 0x10
 	// GPIOB, GPIO_PIN_4  -> BIT 5 -> 0x20
-	// GPIOB, GPIO_PIN_10 -> BIT 6 -> 0x40
-	// GPIOA, GPIO_PIN_8  -> BIT 7 -> 0x80
+	// GPIOB, GPIO_PIN_12 -> BIT 1 -> 0x02
 
-#ifdef OV7670
-	// GPIOA: D0, D2, D3, D4, D5, D6
-	GPIOA->ODR = (GPIOA->ODR & ~(
-					 (1 << LCD_D0_PIN) |
-					 (1 << LCD_D2_PIN) |
-					 (1 << LCD_D3_PIN) |
-					 (1 << LCD_D4_PIN) |
-					 (1 << LCD_D5_PIN) |
-					 (1 << LCD_D6_PIN))) |
-				 ((data & (1 << 0)) << (LCD_D0_PIN - 0)) |
-				 ((data & (1 << 2)) << (LCD_D2_PIN - 2)) |
-				 ((data & (1 << 3)) << (LCD_D3_PIN - 3)) |
-				 ((data & (1 << 4)) << (LCD_D4_PIN - 4)) |
-				 ((data & (1 << 5)) << (LCD_D5_PIN - 5)) |
-				 ((data & (1 << 6)) << (LCD_D6_PIN - 6));
+	// GPIOC, GPIO_PIN_5  -> BIT 7 -> 0x80
 
-	// GPIOB: D1
-	GPIOC->ODR = (GPIOC->ODR & ~(1 << LCD_D1_PIN) ) | ((data & (1 << 1)) << (LCD_D1_PIN - 1));
+	// GPIOA: PA2, PA9, PA10, PA12
+	GPIOA->ODR = (GPIOA->ODR & ~((1 << 2) | (1 << 9) | (1 << 10) | (1 << 12))) |
+				 ((data & (1 << 0)) << (9 - 0))  |   // bit 0 → PA9
+				 ((data & (1 << 2)) << (10 - 2)) |   // bit 2 → PA10
+				 //((data & (1 << 4)) << (2 - 4))  |   // bit 4 → PA2
+				 ((data & (1 << 4)) >> (4 - 2))  |   // bit 4 → PA2 	!! REVERS !!
+				 ((data & (1 << 6)) << (12 - 6));    // bit 6 → PA12
 
-	// GPIOC: D7
-	GPIOC->ODR = (GPIOC->ODR & ~(1 << LCD_D7_PIN) ) | ((data & (1 << 7)) << (LCD_D7_PIN - 7));
+	// GPIOB: PB3, PB4, PB12
+	GPIOB->ODR = (GPIOB->ODR & ~((1 << 3) | (1 << 4) | (1 << 12))) |
+				 ((data & (1 << 3)) << (3 - 3))   |  // bit 3 → PB3
+				 //((data & (1 << 5)) << (4 - 5))   |  // bit 5 → PB4
+				 ((data & (1 << 5)) >> (5 - 4))   |  // bit 5 → PB4 	!! REVERS !!
+				 ((data & (1 << 1)) << (12 - 1));    // bit 1 → PB12
 
-
-//	// GPIOA: PA2, PA3, PA5, PA10, PA11, PA12
-//	GPIOA->ODR = (GPIOA->ODR & ~( (1 << 2) | (1 << 3) | (1 << 5) | (1 << 10) | (1 << 11) | (1 << 12) )) |
-//				 ((data & 0x01) << 5)   |  // bit0 → PA5
-//				 ((data & 0x08) >> 1)   |  // bit3 → PA3
-//				 ((data & 0x10) >> 2)   |  // bit4 → PA2
-//				 ((data & 0x04) << 8)   |  // bit2 → PA10
-//				 ((data & 0x20) << 6)   |  // bit5 → PA11
-//				 ((data & 0x40) << 6);     // bit6 → PA12
-//
-//	// GPIOC: PC5, PC7
-//	GPIOC->ODR = (GPIOC->ODR & ~((1 << 5) | (1 << 7))) |
-//				 ((data & 0x80) >> 2)   |  // bit7 → PC5
-//				 ((data & 0x02) << 6);     // bit1 → PC7
+	// GPIOC: PC5
+	GPIOC->ODR = (GPIOC->ODR & ~(1 << 5)) |
+				 ((data & (1 << 7)) >> (7 - 5));     // bit 7 → PC5
 #else
 	#ifdef NEW_BIT1
+		// ------ PORT -----     --- Data ----
+		// GPIOA, GPIO_PIN_9  -> BIT 0 -> 0x01
 		// GPIOA, GPIO_PIN_7  -> BIT 1 -> 0x02
+		// GPIOA, GPIO_PIN_10 -> BIT 2 -> 0x04
+		// GPIOB, GPIO_PIN_3  -> BIT 3 -> 0x08
+		// GPIOB, GPIO_PIN_5  -> BIT 4 -> 0x10
+		// GPIOB, GPIO_PIN_4  -> BIT 5 -> 0x20
+		// GPIOB, GPIO_PIN_10 -> BIT 6 -> 0x40
+		// GPIOA, GPIO_PIN_8  -> BIT 7 -> 0x80
 		GPIOA->ODR = (GPIOA->ODR & 0xF87F) | ((data & 0x01) << 9) | ((data & 0x04) << 8) | ((data & 0x80) << 1) | ((data & 0x02) << 6);
 		GPIOB->ODR = (GPIOB->ODR & 0xFBC7) | (data & 0x08) | ((data & 0x10) << 1) | ((data & 0x20) >> 1) | ((data & 0x40) << 4);
 	#else
+		// ------ PORT -----     --- Data ----
+		// GPIOA, GPIO_PIN_9  -> BIT 0 -> 0x01
 		// GPIOC, GPIO_PIN_7  -> BIT 1 -> 0x02
+		// GPIOA, GPIO_PIN_10 -> BIT 2 -> 0x04
+		// GPIOB, GPIO_PIN_3  -> BIT 3 -> 0x08
+		// GPIOB, GPIO_PIN_5  -> BIT 4 -> 0x10
+		// GPIOB, GPIO_PIN_4  -> BIT 5 -> 0x20
+		// GPIOB, GPIO_PIN_10 -> BIT 6 -> 0x40
+		// GPIOA, GPIO_PIN_8  -> BIT 7 -> 0x80
 		GPIOA->ODR = (GPIOA->ODR & 0xF8FF) | ((data & 0x01) << 9) | ((data & 0x04) << 8) | ((data & 0x80) << 1);
 		GPIOB->ODR = (GPIOB->ODR & 0xFBC7) | (data & 0x08) | ((data & 0x10) << 1) | ((data & 0x20) >> 1) | ((data & 0x40) << 4);
 		GPIOC->ODR = (GPIOC->ODR & 0xFF7F) | ((data & 0x02) << 6);
