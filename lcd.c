@@ -935,9 +935,9 @@ inline uint8_t LCD_Read8(void) {
 			| ((GPIOA->IDR & 0x0080) >> 6);
 #else
 	// BIT 1 -> GPIOC, GPIO_PIN_7  -> 0x0080
-	data = ((GPIOA->IDR & 0x0200) >> 9) | ((GPIOA->IDR & 0x0400) >> 8) | ((GPIOA->IDR & 0x0100) >> 1) | (GPIOB->IDR & 0x0008)
-			| ((GPIOB->IDR & 0x0020) >> 1) | ((GPIOB->IDR & 0x0010) << 1) | ((GPIOB->IDR & 0x0400) >> 4)
-			| ((GPIOC->IDR & 0x0080) >> 6);
+	data = 	  ((GPIOA->IDR & GPIO_PIN_9) >> 9) | ((GPIOA->IDR & GPIO_PIN_10) >> 8) | ((GPIOA->IDR & GPIO_PIN_8 ) >> 1) | (GPIOB->IDR & GPIO_PIN_3)
+			| ((GPIOB->IDR & GPIO_PIN_5) >> 1) | ((GPIOB->IDR & GPIO_PIN_4 ) << 1) | ((GPIOB->IDR & GPIO_PIN_10) >> 4)
+			| ((GPIOC->IDR & GPIO_PIN_7) >> 6);
 #endif
 
 	return data;
