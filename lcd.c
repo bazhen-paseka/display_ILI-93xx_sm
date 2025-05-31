@@ -993,7 +993,16 @@ inline uint8_t LCD_Read8(void) {
 			| ((GPIOB->IDR & GPIO_PIN_5) >> 1) | ((GPIOB->IDR & GPIO_PIN_4 ) << 1) | ((GPIOB->IDR & GPIO_PIN_10) >> 4)
 			| ((GPIOC->IDR & GPIO_PIN_7) >> 6);
 #endif
-
+#ifdef GPT_VERSION
+	data |= ((GPIOA->IDR >> 9)  & 0x01);  // bit 0 ← PA9
+	data |= ((GPIOB->IDR >> 11) & 0x02);  // bit 1 ← PB12
+	data |= ((GPIOA->IDR >> 8)  & 0x04);  // bit 2 ← PA10
+	data |= ((GPIOB->IDR >> 0)  & 0x08);  // bit 3 ← PB3
+	data |= ((GPIOA->IDR << 2)  & 0x10);  // bit 4 ← PA2
+	data |= ((GPIOB->IDR << 1)  & 0x20);  // bit 5 ← PB4
+	data |= ((GPIOA->IDR >> 6)  & 0x40);  // bit 6 ← PA12
+	data |= ((GPIOC->IDR << 2)  & 0x80);  // bit 7 ← PC5
+#endif
 	return data;
 }
 
