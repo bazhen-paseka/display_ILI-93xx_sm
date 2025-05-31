@@ -699,6 +699,7 @@ void GPIO_Init(uint32_t mode) {
 
 	if (!(mode == GPIO_MODE_OUTPUT_PP || mode == GPIO_MODE_INPUT)) return;
 
+#ifndef OV7670
 	GPIO_InitTypeDef GPIO_InitStruct;
 
 	#ifdef STM32F4xx
@@ -767,7 +768,7 @@ void GPIO_Init(uint32_t mode) {
 			HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 		#endif
 	#endif
-
+#endif
 #ifdef STM32F1xx
 		/* GPIO Ports Clock Enable */
 		__HAL_RCC_GPIOA_CLK_ENABLE();
@@ -855,15 +856,53 @@ inline void LCD_Write8(uint8_t data) {
 	// GPIOB, GPIO_PIN_10 -> BIT 6 -> 0x40
 	// GPIOA, GPIO_PIN_8  -> BIT 7 -> 0x80
 
-#ifdef NEW_BIT1
-	// GPIOA, GPIO_PIN_7  -> BIT 1 -> 0x02
-	GPIOA->ODR = (GPIOA->ODR & 0xF87F) | ((data & 0x01) << 9) | ((data & 0x04) << 8) | ((data & 0x80) << 1) | ((data & 0x02) << 6);
-	GPIOB->ODR = (GPIOB->ODR & 0xFBC7) | (data & 0x08) | ((data & 0x10) << 1) | ((data & 0x20) >> 1) | ((data & 0x40) << 4);
+#ifdef OV7670
+	// GPIOA: D0, D2, D3, D4, D5, D6
+	GPIOA->ODR = (GPIOA->ODR & ~(
+					 (1 << LCD_D0_PIN) |
+					 (1 << LCD_D2_PIN) |
+					 (1 << LCD_D3_PIN) |
+					 (1 << LCD_D4_PIN) |
+					 (1 << LCD_D5_PIN) |
+					 (1 << LCD_D6_PIN))) |
+				 ((data & (1 << 0)) << (LCD_D0_PIN - 0)) |
+				 ((data & (1 << 2)) << (LCD_D2_PIN - 2)) |
+				 ((data & (1 << 3)) << (LCD_D3_PIN - 3)) |
+				 ((data & (1 << 4)) << (LCD_D4_PIN - 4)) |
+				 ((data & (1 << 5)) << (LCD_D5_PIN - 5)) |
+				 ((data & (1 << 6)) << (LCD_D6_PIN - 6));
+
+	// GPIOB: D1
+	GPIOC->ODR = (GPIOC->ODR & ~(1 << LCD_D1_PIN) ) | ((data & (1 << 1)) << (LCD_D1_PIN - 1));
+
+	// GPIOC: D7
+	GPIOC->ODR = (GPIOC->ODR & ~(1 << LCD_D7_PIN) ) | ((data & (1 << 7)) << (LCD_D7_PIN - 7));
+
+
+//	// GPIOA: PA2, PA3, PA5, PA10, PA11, PA12
+//	GPIOA->ODR = (GPIOA->ODR & ~( (1 << 2) | (1 << 3) | (1 << 5) | (1 << 10) | (1 << 11) | (1 << 12) )) |
+//				 ((data & 0x01) << 5)   |  // bit0 → PA5
+//				 ((data & 0x08) >> 1)   |  // bit3 → PA3
+//				 ((data & 0x10) >> 2)   |  // bit4 → PA2
+//				 ((data & 0x04) << 8)   |  // bit2 → PA10
+//				 ((data & 0x20) << 6)   |  // bit5 → PA11
+//				 ((data & 0x40) << 6);     // bit6 → PA12
+//
+//	// GPIOC: PC5, PC7
+//	GPIOC->ODR = (GPIOC->ODR & ~((1 << 5) | (1 << 7))) |
+//				 ((data & 0x80) >> 2)   |  // bit7 → PC5
+//				 ((data & 0x02) << 6);     // bit1 → PC7
 #else
-	// GPIOC, GPIO_PIN_7  -> BIT 1 -> 0x02
-	GPIOA->ODR = (GPIOA->ODR & 0xF8FF) | ((data & 0x01) << 9) | ((data & 0x04) << 8) | ((data & 0x80) << 1);
-	GPIOB->ODR = (GPIOB->ODR & 0xFBC7) | (data & 0x08) | ((data & 0x10) << 1) | ((data & 0x20) >> 1) | ((data & 0x40) << 4);
-	GPIOC->ODR = (GPIOC->ODR & 0xFF7F) | ((data & 0x02) << 6);
+	#ifdef NEW_BIT1
+		// GPIOA, GPIO_PIN_7  -> BIT 1 -> 0x02
+		GPIOA->ODR = (GPIOA->ODR & 0xF87F) | ((data & 0x01) << 9) | ((data & 0x04) << 8) | ((data & 0x80) << 1) | ((data & 0x02) << 6);
+		GPIOB->ODR = (GPIOB->ODR & 0xFBC7) | (data & 0x08) | ((data & 0x10) << 1) | ((data & 0x20) >> 1) | ((data & 0x40) << 4);
+	#else
+		// GPIOC, GPIO_PIN_7  -> BIT 1 -> 0x02
+		GPIOA->ODR = (GPIOA->ODR & 0xF8FF) | ((data & 0x01) << 9) | ((data & 0x04) << 8) | ((data & 0x80) << 1);
+		GPIOB->ODR = (GPIOB->ODR & 0xFBC7) | (data & 0x08) | ((data & 0x10) << 1) | ((data & 0x20) >> 1) | ((data & 0x40) << 4);
+		GPIOC->ODR = (GPIOC->ODR & 0xFF7F) | ((data & 0x02) << 6);
+	#endif
 #endif
 
 	LCD_WR_STROBE();
