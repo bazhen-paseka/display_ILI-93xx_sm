@@ -109,7 +109,7 @@ POSSIBILITY OF SUCH DAMAGE.
 // GPIOA, GPIO_PIN_0  -> RD
 // GPIOA, GPIO_PIN_1  -> WR
 
-#ifdef ILI9340_PINOUT_ARDUINO_BOARD
+#if defined( ILI9340_PINOUT_ARDUINO_BOARD_24_INCH) || defined( ILI9340_PINOUT_ARDUINO_BOARD_32_INCH)
 	#define LCD_CS_GPIO_PORT	GPIOB
 	#define LCD_CS_PIN			GPIO_PIN_0
 	#define LCD_CS_IDLE()		LCD_CS_GPIO_PORT->BSRR = LCD_CS_PIN						// CS_HIGH
@@ -120,13 +120,10 @@ POSSIBILITY OF SUCH DAMAGE.
 	#define LCD_CD_DATA()		LCD_CD_GPIO_PORT->BSRR = LCD_CD_PIN						// CD_HIGH
 	#define LCD_CD_COMMAND()	LCD_CD_GPIO_PORT->BSRR = (uint32_t)LCD_CD_PIN << 16U	// CD_LOW
 
-
-
 	#define LCD_RST_GPIO_PORT	GPIOC
 	#define LCD_RST_PIN			GPIO_PIN_1
 	#define LCD_RST_IDLE()		LCD_RST_GPIO_PORT->BSRR = LCD_RST_PIN					// RST_HIGH
 	#define LCD_RST_ACTIVE()	LCD_RST_GPIO_PORT->BSRR = (uint32_t)LCD_RST_PIN << 16U	// RST_LOW
-
 
 	#define LCD_RD_GPIO_PORT	GPIOA
 	#define LCD_RD_PIN			GPIO_PIN_0
@@ -344,3 +341,13 @@ uint16_t LCD_Color565(uint8_t r, uint8_t g, uint8_t b);
 	#endif	//	__LCD_CONFIG_LOCAL_H
 
 #endif
+
+// EXAMPLE:
+/*
+	LCD_Init();
+	LCD_SetRotation(0);
+	LCD_SetCursor(0, 0);
+	LCD_FillScreen(ILI92_BLACK);
+	LCD_SetTextColor(ILI92_GREEN, ILI92_BLACK);
+	LCD_Printf( "LCD_Printf\r\n");
+*/
