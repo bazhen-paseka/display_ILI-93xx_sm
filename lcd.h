@@ -109,6 +109,57 @@ POSSIBILITY OF SUCH DAMAGE.
 // GPIOA, GPIO_PIN_0  -> RD
 // GPIOA, GPIO_PIN_1  -> WR
 
+#ifdef ILI9340_PINOUT_ARDUINO_BOARD
+	#define LCD_CS_GPIO_PORT	GPIOB
+	#define LCD_CS_PIN			GPIO_PIN_0
+	#define LCD_CS_IDLE()		LCD_CS_GPIO_PORT->BSRR = LCD_CS_PIN						// CS_HIGH
+	#define LCD_CS_ACTIVE()		LCD_CS_GPIO_PORT->BSRR = (uint32_t)LCD_CS_PIN << 16U	// CS_LOW
+
+	#define LCD_CD_GPIO_PORT	GPIOA
+	#define LCD_CD_PIN			GPIO_PIN_4
+	#define LCD_CD_DATA()		LCD_CD_GPIO_PORT->BSRR = LCD_CD_PIN						// CD_HIGH
+	#define LCD_CD_COMMAND()	LCD_CD_GPIO_PORT->BSRR = (uint32_t)LCD_CD_PIN << 16U	// CD_LOW
+
+
+
+	#define LCD_RST_GPIO_PORT	GPIOC
+	#define LCD_RST_PIN			GPIO_PIN_1
+	#define LCD_RST_IDLE()		LCD_RST_GPIO_PORT->BSRR = LCD_RST_PIN					// RST_HIGH
+	#define LCD_RST_ACTIVE()	LCD_RST_GPIO_PORT->BSRR = (uint32_t)LCD_RST_PIN << 16U	// RST_LOW
+
+
+	#define LCD_RD_GPIO_PORT	GPIOA
+	#define LCD_RD_PIN			GPIO_PIN_0
+	#define LCD_RD_IDLE()		LCD_RD_GPIO_PORT->BSRR = LCD_RD_PIN						// RD_HIGH
+	#define LCD_RD_ACTIVE()		LCD_RD_GPIO_PORT->BSRR = (uint32_t)LCD_RD_PIN << 16U	// RD_LOW
+
+	#define LCD_RD_STROBE() 	do {\
+									LCD_RD_ACTIVE();\
+									delay(2);\
+									LCD_RD_IDLE();\
+									delay(2);\
+								} while(0)
+
+	#define LCD_WR_GPIO_PORT	GPIOA
+	#define LCD_WR_PIN			GPIO_PIN_1
+	#define LCD_WR_IDLE()		LCD_WR_GPIO_PORT->BSRR = LCD_WR_PIN						// WR_HIGH
+	#define LCD_WR_ACTIVE()		LCD_WR_GPIO_PORT->BSRR = (uint32_t)LCD_WR_PIN << 16U	// WR_LOW
+
+	#define LCD_WR_STROBE() 	do {\
+									LCD_WR_ACTIVE();\
+									delay(2);\
+									LCD_WR_IDLE();\
+									delay(2);\
+								} while(0)
+
+	#define swap(a, b)			do {\
+									int16_t t = a;\
+									a = b;\
+									b = t;\
+								} while(0)
+#endif
+
+#ifdef ILI9340_PINOUT_DRAFT_GENERAL
 #define LCD_CS_GPIO_PORT	GPIOB
 #define LCD_CS_PIN			GPIO_PIN_0
 #define LCD_CS_IDLE()		LCD_CS_GPIO_PORT->BSRR = LCD_CS_PIN						// CS_HIGH
@@ -169,7 +220,7 @@ POSSIBILITY OF SUCH DAMAGE.
 								a = b;\
 								b = t;\
 							} while(0)
-
+#endif
 
 #ifdef ILI9340_COLOR_INVERT
 	#define	ILI92_BLACK				0xFFFF

@@ -698,6 +698,64 @@ void GPIO_Init(uint32_t mode) {
 	// GPIOA, GPIO_PIN_1  -> WR
 
 	if (!(mode == GPIO_MODE_OUTPUT_PP || mode == GPIO_MODE_INPUT)) return;
+#ifdef ILI9340_PINOUT_ARDUINO_BOARD
+		// RD  PA0
+		// WR  PA1
+		// RS  PA4 or CD
+		// CS  PB0
+		// RST PC1
+	GPIO_InitTypeDef GPIO_InitStruct;
+	#ifdef STM32F4xx
+		__GPIOA_CLK_ENABLE();
+		__GPIOB_CLK_ENABLE();
+		__GPIOC_CLK_ENABLE();
+
+		/*Configure GPIO data pins : PA8 PA9 PA10 */
+		GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10;
+		GPIO_InitStruct.Mode = mode;
+		GPIO_InitStruct.Pull = GPIO_NOPULL;
+		GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+		HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+		/*Configure GPIO data pins : PB3 PB4 PB5 PB10 */
+		GPIO_InitStruct.Pin = GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_10;
+		GPIO_InitStruct.Mode = mode;
+		GPIO_InitStruct.Pull = GPIO_NOPULL;
+		GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+		HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+		/*Configure GPIO data pins : PC7 */
+		GPIO_InitStruct.Pin = GPIO_PIN_7;
+		GPIO_InitStruct.Mode = mode;
+		GPIO_InitStruct.Pull = GPIO_NOPULL;
+		GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+		HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+
+		/*Configure GPIO control pins : PA0 PA1 PA4 */
+		GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_4;
+		GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+		GPIO_InitStruct.Pull = GPIO_NOPULL;
+		GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+		HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+		/*Configure GPIO control pins : PB0 */
+		GPIO_InitStruct.Pin = GPIO_PIN_0;
+		GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+		GPIO_InitStruct.Pull = GPIO_NOPULL;
+		GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+		HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+		/*Configure GPIO control pins : PC1 */
+		GPIO_InitStruct.Pin = GPIO_PIN_1;
+		GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+		GPIO_InitStruct.Pull = GPIO_NOPULL;
+		GPIO_InitStruct.Speed = GPIO_SPEED_LOW;
+		HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+	#endif
+#endif
+
+#ifdef ILI9340_PINOUT_DRAFT_GENERAL
 #ifdef OV7670_INIT
 	GPIO_InitTypeDef GPIO_InitStruct;
 
@@ -887,6 +945,7 @@ void GPIO_Init(uint32_t mode) {
 		#endif
 
 	#endif
+#endif
 }
 
 /**
@@ -897,6 +956,56 @@ void GPIO_Init(uint32_t mode) {
  * \return void
  */
 inline void LCD_Write8(uint8_t data) {
+
+#ifdef ILI9340_PINOUT_ARDUINO_BOARD
+#ifdef NEW_BIT1
+		// ------ PORT -----     --- Data ----
+		// GPIOA, GPIO_PIN_9  -> BIT 0 -> 0x01
+		// GPIOA, GPIO_PIN_7  -> BIT 1 -> 0x02
+		// GPIOA, GPIO_PIN_10 -> BIT 2 -> 0x04
+		// GPIOB, GPIO_PIN_3  -> BIT 3 -> 0x08
+		// GPIOB, GPIO_PIN_5  -> BIT 4 -> 0x10
+		// GPIOB, GPIO_PIN_4  -> BIT 5 -> 0x20
+		// GPIOB, GPIO_PIN_10 -> BIT 6 -> 0x40
+		// GPIOA, GPIO_PIN_8  -> BIT 7 -> 0x80
+		GPIOA->ODR = (GPIOA->ODR & 0xF87F) | ((data & 0x01) << 9) | ((data & 0x04) << 8) | ((data & 0x80) << 1) | ((data & 0x02) << 6);
+		GPIOB->ODR = (GPIOB->ODR & 0xFBC7) | (data & 0x08) | ((data & 0x10) << 1) | ((data & 0x20) >> 1) | ((data & 0x40) << 4);
+	#else
+	//GPIOA->ODR = (GPIOA->ODR & 0xF8FF) | ((data & 0x01) << 9) | ((data & 0x04) << 8) | ((data & 0x80) << 1);
+	//GPIOB->ODR = (GPIOB->ODR & 0xFBC7) | (data & 0x08) | ((data & 0x10) << 1) | ((data & 0x20) >> 1) | ((data & 0x40) << 4);
+	//GPIOC->ODR = (GPIOC->ODR & 0xFF7F) | ((data & 0x02) << 6);
+			// MD9 C7  -> BIT 1 -> 0x02
+			// MD8 A9  -> BIT 0 -> 0x01
+			// MD7 A8  -> BIT 7 -> 0x80
+			// MD6 B10 -> BIT 6 -> 0x40
+			// MD5 B4  -> BIT 5 -> 0x20
+			// MD4 B5  -> BIT 4 -> 0x10
+			// MD3 B3  -> BIT 3 -> 0x08
+			// MD2 A10 -> BIT 2 -> 0x04
+
+		// MD8 A9  -> BIT 0 -> 0x01
+		// MD2 A10 -> BIT 2 -> 0x04
+		// MD7 A8  -> BIT 7 -> 0x80
+		GPIOA->ODR = (GPIOA->ODR & ~ (GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 )) |
+					 ((data & (GPIO_PIN_0)) << ( 9 - 0)) |   // bit 0 → PA9
+					 ((data & (GPIO_PIN_2)) << (10 - 2)) |   // bit 2 → PA10
+				   	 ((data & (GPIO_PIN_7)) << ( 8 - 7));    // bit 7 → PA8
+
+		// MD3 B3  -> BIT 3 -> 0x08
+		// MD4 B5  -> BIT 4 -> 0x10
+		// MD5 B4  -> BIT 5 -> 0x20
+		// MD6 B10 -> BIT 6 -> 0x40
+		GPIOB->ODR = (GPIOB->ODR & ~ (GPIO_PIN_3 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_10)) |
+					 ((data & (GPIO_PIN_3)) << (3  - 3))  |  // bit 3 → PB3
+				     ((data & (GPIO_PIN_4)) << (5  - 4))  |  // bit 4 → PB5
+					 ((data & (GPIO_PIN_5)) >> (5  - 4))  |  // bit 5 → PB4 	!! REVERS !!
+					 ((data & (GPIO_PIN_6)) << (10 - 6));    // bit 6 → PB10
+
+		// MD9 C7  -> BIT 1 -> 0x02
+		GPIOC->ODR = (GPIOC->ODR & ~ GPIO_PIN_7) |
+					 ((data & GPIO_PIN_1) << (7 - 1));     // bit 1 → PC7
+	#endif
+#endif
 
 #ifdef OV7670_WRITE
 	// ------ PORT -----     --- Data ----
@@ -913,49 +1022,22 @@ inline void LCD_Write8(uint8_t data) {
 
 	// GPIOA: PA2, PA9, PA10, PA12
 	GPIOA->ODR = (GPIOA->ODR & ~((1 << 2) | (1 << 9) | (1 << 10) | (1 << 12))) |
-				 ((data & (1 << 0)) << (9 - 0))  |   // bit 0 → PA9
+				 ((data & (1 << 0)) << (9  - 0)) |   // bit 0 → PA9
 				 ((data & (1 << 2)) << (10 - 2)) |   // bit 2 → PA10
-				 //((data & (1 << 4)) << (2 - 4))  |   // bit 4 → PA2
-				 ((data & (1 << 4)) >> (4 - 2))  |   // bit 4 → PA2 	!! REVERS !!
+			   //((data & (1 << 4)) << (2  - 4)) |   // bit 4 → PA2
+				 ((data & (1 << 4)) >> (4  - 2)) |   // bit 4 → PA2 	!! REVERS !!
 				 ((data & (1 << 6)) << (12 - 6));    // bit 6 → PA12
 
 	// GPIOB: PB3, PB4, PB12
 	GPIOB->ODR = (GPIOB->ODR & ~((1 << 3) | (1 << 4) | (1 << 12))) |
-				 ((data & (1 << 3)) << (3 - 3))   |  // bit 3 → PB3
-				 //((data & (1 << 5)) << (4 - 5))   |  // bit 5 → PB4
-				 ((data & (1 << 5)) >> (5 - 4))   |  // bit 5 → PB4 	!! REVERS !!
+				 ((data & (1 << 3)) << (3  - 3))  |  // bit 3 → PB3
+			   //((data & (1 << 5)) << (4  - 5))  |  // bit 5 → PB4
+				 ((data & (1 << 5)) >> (5  - 4))  |  // bit 5 → PB4 	!! REVERS !!
 				 ((data & (1 << 1)) << (12 - 1));    // bit 1 → PB12
 
 	// GPIOC: PC5
 	GPIOC->ODR = (GPIOC->ODR & ~(1 << 5)) |
 				 ((data & (1 << 7)) >> (7 - 5));     // bit 7 → PC5
-#else
-	#ifdef NEW_BIT1
-		// ------ PORT -----     --- Data ----
-		// GPIOA, GPIO_PIN_9  -> BIT 0 -> 0x01
-		// GPIOA, GPIO_PIN_7  -> BIT 1 -> 0x02
-		// GPIOA, GPIO_PIN_10 -> BIT 2 -> 0x04
-		// GPIOB, GPIO_PIN_3  -> BIT 3 -> 0x08
-		// GPIOB, GPIO_PIN_5  -> BIT 4 -> 0x10
-		// GPIOB, GPIO_PIN_4  -> BIT 5 -> 0x20
-		// GPIOB, GPIO_PIN_10 -> BIT 6 -> 0x40
-		// GPIOA, GPIO_PIN_8  -> BIT 7 -> 0x80
-		GPIOA->ODR = (GPIOA->ODR & 0xF87F) | ((data & 0x01) << 9) | ((data & 0x04) << 8) | ((data & 0x80) << 1) | ((data & 0x02) << 6);
-		GPIOB->ODR = (GPIOB->ODR & 0xFBC7) | (data & 0x08) | ((data & 0x10) << 1) | ((data & 0x20) >> 1) | ((data & 0x40) << 4);
-	#else
-		// ------ PORT -----     --- Data ----
-		// GPIOA, GPIO_PIN_9  -> BIT 0 -> 0x01
-		// GPIOC, GPIO_PIN_7  -> BIT 1 -> 0x02
-		// GPIOA, GPIO_PIN_10 -> BIT 2 -> 0x04
-		// GPIOB, GPIO_PIN_3  -> BIT 3 -> 0x08
-		// GPIOB, GPIO_PIN_5  -> BIT 4 -> 0x10
-		// GPIOB, GPIO_PIN_4  -> BIT 5 -> 0x20
-		// GPIOB, GPIO_PIN_10 -> BIT 6 -> 0x40
-		// GPIOA, GPIO_PIN_8  -> BIT 7 -> 0x80
-		GPIOA->ODR = (GPIOA->ODR & 0xF8FF) | ((data & 0x01) << 9) | ((data & 0x04) << 8) | ((data & 0x80) << 1);
-		GPIOB->ODR = (GPIOB->ODR & 0xFBC7) | (data & 0x08) | ((data & 0x10) << 1) | ((data & 0x20) >> 1) | ((data & 0x40) << 4);
-		GPIOC->ODR = (GPIOC->ODR & 0xFF7F) | ((data & 0x02) << 6);
-	#endif
 #endif
 
 	LCD_WR_STROBE();
