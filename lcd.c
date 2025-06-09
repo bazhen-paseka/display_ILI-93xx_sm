@@ -698,7 +698,6 @@ void GPIO_Init(uint32_t mode) {
 	// GPIOA, GPIO_PIN_1  -> WR
 
 	if (!(mode == GPIO_MODE_OUTPUT_PP || mode == GPIO_MODE_INPUT)) return;
-#define OV7670_INIT
 #ifdef OV7670_INIT
 	GPIO_InitTypeDef GPIO_InitStruct;
 
@@ -898,7 +897,7 @@ void GPIO_Init(uint32_t mode) {
  * \return void
  */
 inline void LCD_Write8(uint8_t data) {
-#define OV7670_WRITE
+
 #ifdef OV7670_WRITE
 	// ------ PORT -----     --- Data ----
 	// GPIOA, GPIO_PIN_2  -> BIT 4 -> 0x10
